@@ -1,49 +1,58 @@
-# thirdweb SDK + Next.js starter
+# NFT Claim App
 
-## Setup client id
+Create your own NFT project (ERC-721) and build a frontend claim app.
 
-Before you start, you need to replace the placeholder `clientId` with your client ID to use thirdweb SDK.
+## Getting Started
 
-Refer to [Creating a client](https://portal.thirdweb.com/typescript/v5/client) guide to see how you can get a client id.
+To use the NFT claim app, you'll need to clone this repository, install dependencies, set up environment variables and contract addresses, and deploy the application. Below are the steps to follow:
 
-Go to `src/client.ts` file and replace the placeholder `clientId` with your client ID.
+### Deploy Smart Contracts
+[ERC-721 NFTDrop](https://thirdweb.com/thirdweb.eth/DropERC721)
 
-```ts
-const clientId = "......";
+
+### Cloning the Repository
+
+To get started, clone the repository to your local machine:
+```
+git clone https://github.com/thirdweb-example/youtube-nft-claim.git
 ```
 
-## Usage
+### Installing Dependencies
 
-### Install dependencies
+This application requires several dependencies to function, including thirdweb Connect SDK. Install them using npm or yarn:
 
-```bash
-yarn
+```
+npm install
+```
+or
+```
+yarn install
 ```
 
-### Start development server
 
-```bash
-yarn dev
-```
+### Video Tutorial
 
-### Create a production build
+For a detailed setup and deployment guide, watch our video tutorial on YouTube:
 
-```bash
-yarn build
-```
+[How to Build an NFT Project - Deploy Smart Contract and Build Frontend App](https://youtu.be/EI-nm1sLe3U)
 
-### Preview the production build
+### Setting Environment Variables
 
-```bash
-yarn start
-```
+Set the following variables in the `.env.example` file. You will need an OpenAI api key.
 
-## Resources
+### Setting Smart Contract and Chain Variables
 
-- [thirdweb SDK documentation](https://portal.thirdweb.com/typescript/v5)
-- [React components and hooks](https://portal.thirdweb.com/typescript/v5/react)
-- [thirdweb Dashboard](https://thirdweb.com/dashboard)
+Replace `chain` with the chain you deployed your smart contract to and the `address` with the contract address of the NFT smart contract
+
+## Learn More
+
+To learn more about thirdweb and Next.js, take a look at the following resources:
+
+- [thirdweb docs Documentation](https://portal.thirdweb.com) - 
+- [thirdweb dashboard](https://thirdweb.com)
+
+You can check out [the thirdweb GitHub organization](https://github.com/thirdweb-dev) - your feedback and contributions are welcome!
 
 ## Join our Discord!
 
-For any questions or suggestions, join our discord at [https://discord.gg/thirdweb](https://discord.gg/thirdweb).
+For any questions, suggestions, join our discord at [https://discord.gg/thirdweb](https://discord.gg/thirdweb).
