@@ -5,7 +5,7 @@ import { ConnectButton, MediaRenderer, TransactionButton, useActiveAccount, useR
 import thirdwebIcon from "@public/thirdweb.svg";
 import { client } from "./client";
 import { defineChain, getContract, toEther } from "thirdweb";
-import { sepolia } from "thirdweb/chains";
+import { bsc } from "thirdweb/chains";
 import { getContractMetadata } from "thirdweb/extensions/common";
 import { claimTo, getActiveClaimCondition, getTotalClaimedSupply, nextTokenIdToMint } from "thirdweb/extensions/erc721";
 import { useState } from "react";
@@ -14,15 +14,15 @@ export default function Home() {
   const account = useActiveAccount();
 
   // Replace the chain with the chain you want to connect to
-  const chain = defineChain( sepolia );
+  const chain = defineChain( bsc );
 
   const [quantity, setQuantity] = useState(1);
 
   // Replace the address with the address of the deployed contract
-  const contract = getContract({
+    const contract = getContract({
     client: client,
     chain: chain,
-    address: "0xBb1d78c8799b33c5791ED6e49B84429c7106759E"
+    address: "0x8CF50BC1F81d1b641E3AfF746D71943e733BDb16"
   });
 
   const { data: contractMetadata, isLoading: isContractMetadataLaoding } = useReadContract( getContractMetadata,
@@ -95,19 +95,20 @@ export default function Home() {
               onClick={() => setQuantity(quantity + 1)}
             >+</button>
           </div>
-          <TransactionButton
-            transaction={() => claimTo({
-              contract: contract,
-              to: account?.address || "",
-              quantity: BigInt(quantity),
-            })}
-            onTransactionConfirmed={async () => {
-              alert("NFT Claimed!");
-              setQuantity(1);
-            }}
-          >
-            {`Claim NFT (${getPrice(quantity)} ETH)`}
-          </TransactionButton>
+         <TransactionButton
+  transaction={() => claimTo({
+    contract: contract,
+    to: account?.address || "",
+    quantity: BigInt(quantity),
+  })}
+  onTransactionConfirmed={async () => {
+    alert("NFT Claimed!");
+    setQuantity(1);
+  }}
+>
+  {`Claim NFT (${getPrice(quantity)} USDT)`}
+</TransactionButton>
+
         </div>
       </div>
     </main>
