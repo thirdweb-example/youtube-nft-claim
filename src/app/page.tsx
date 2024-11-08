@@ -15,8 +15,9 @@ export default function Home() {
   const chain = defineChain(bsc);
   const [quantity, setQuantity] = useState(1);
   const [referrer, setReferrer] = useState<string | null>(null);
-  const [paymentToken, setPaymentToken] = useState<"USDT" | "USDC">("USDT"); // default to USDT
+  const [paymentToken, setPaymentToken] = useState<string>("USDT"); // Default payment token
 
+  // Define contract and metadata
   const contract = getContract({
     client: client,
     chain: chain,
@@ -29,6 +30,7 @@ export default function Home() {
   const { data: claimCondition } = useReadContract(getActiveClaimCondition, { contract });
 
   useEffect(() => {
+    // Capture referrer from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     setReferrer(urlParams.get("ref"));
   }, []);
@@ -38,22 +40,24 @@ export default function Home() {
     return toEther(BigInt(total));
   };
 
- const handleClaim = async () => {
-  if (!account || !contract) return;
+  // Function to claim NFT and distribute OPE tokens
+  const handleClaim = async () => {
+    if (!account || !contract) return;
 
-  try {
-    // Assuming `contract.functions` exposes `claimWithReferrer` as part of the deployed contract functions
-    await contract.functions.claimWithReferrer(quantity, referrer, paymentToken);
+    try {
+      // Call claimWithReferrer function on contract
+      await contract.functions.claimWithReferrer(quantity, referrer, paymentToken);
 
-    alert("NFT Claimed and reward distributed!");
-    setQuantity(1);
+      alert("NFT Claimed and reward distributed!");
 
-  } catch (error) {
-    console.error("Claim failed:", error);
-    alert("Failed to claim NFT.");
-  }
-};
+      // Reset the quantity after claim
+      setQuantity(1);
 
+    } catch (error) {
+      console.error("Claim failed:", error);
+      alert("Failed to claim NFT.");
+    }
+  };
 
   return (
     <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
@@ -77,17 +81,6 @@ export default function Home() {
               Total NFT Supply: {claimedSupply?.toString()}/{totalNFTSupply?.toString()}
             </p>
           )}
-          <div className="flex items-center my-4">
-            <label className="mr-2">Payment:</label>
-            <select
-              value={paymentToken}
-              onChange={(e) => setPaymentToken(e.target.value as "USDT" | "USDC")}
-              className="border border-gray-300 rounded-md px-2 py-1"
-            >
-              <option value="USDT">USDT</option>
-              <option value="USDC">USDC</option>
-            </select>
-          </div>
           <div className="flex flex-row items-center justify-center my-4">
             <button
               className="bg-black text-white px-4 py-2 rounded-md mr-4"
@@ -109,7 +102,7 @@ export default function Home() {
             </button>
           </div>
           <TransactionButton onClick={handleClaim}>
-            {`Claim NFT (${getPrice(quantity)} ${paymentToken})`}
+            {`Claim NFT (${getPrice(quantity)} ETH)`}
           </TransactionButton>
         </div>
       </div>
