@@ -14,7 +14,7 @@ export default function Home() {
   const account = useActiveAccount();
 
   // Replace the chain with the chain you want to connect to
-  const chain = defineChain( sepolia );
+  const chain = defineChain( bsc );
 
   const [quantity, setQuantity] = useState(1);
 
