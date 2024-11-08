@@ -5,7 +5,7 @@ import { ConnectButton, MediaRenderer, TransactionButton, useActiveAccount, useR
 import thirdwebIcon from "@public/thirdweb.svg";
 import { client } from "./client";
 import { defineChain, getContract, toEther } from "thirdweb";
-import { sepolia } from "thirdweb/chains";
+import { bsc } from "thirdweb/chains";
 import { getContractMetadata } from "thirdweb/extensions/common";
 import { claimTo, getActiveClaimCondition, getTotalClaimedSupply, nextTokenIdToMint } from "thirdweb/extensions/erc721";
 import { useState } from "react";
@@ -14,7 +14,7 @@ export default function Home() {
   const account = useActiveAccount();
 
   // Replace the chain with the chain you want to connect to
-  const chain = defineChain( sepolia );
+  const chain = defineChain( bsc );
 
   const [quantity, setQuantity] = useState(1);
 
@@ -22,7 +22,7 @@ export default function Home() {
   const contract = getContract({
     client: client,
     chain: chain,
-    address: "0xBb1d78c8799b33c5791ED6e49B84429c7106759E"
+    address: "0x28f6Ff4FeC066b2a6D995ed74567413F3649BB42"
   });
 
   const { data: contractMetadata, isLoading: isContractMetadataLaoding } = useReadContract( getContractMetadata,
