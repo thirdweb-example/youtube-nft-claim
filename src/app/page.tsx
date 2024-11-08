@@ -7,7 +7,7 @@ import { client } from "./client";
 import { defineChain, getContract, toEther } from "thirdweb";
 import { bsc } from "thirdweb/chains";
 import { getContractMetadata } from "thirdweb/extensions/common";
-import { claimTo, getActiveClaimCondition, getTotalClaimedSupply, nextTokenIdToMint } from "thirdweb/extensions/erc721";
+import { getActiveClaimCondition, getTotalClaimedSupply, nextTokenIdToMint } from "thirdweb/extensions/erc721";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -15,8 +15,8 @@ export default function Home() {
   const chain = defineChain(bsc);
   const [quantity, setQuantity] = useState(1);
   const [referrer, setReferrer] = useState<string | null>(null);
+  const [paymentToken, setPaymentToken] = useState<"USDT" | "USDC">("USDT"); // default to USDT
 
-  // Define contract and metadata
   const contract = getContract({
     client: client,
     chain: chain,
@@ -29,7 +29,6 @@ export default function Home() {
   const { data: claimCondition } = useReadContract(getActiveClaimCondition, { contract });
 
   useEffect(() => {
-    // Capture referrer from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     setReferrer(urlParams.get("ref"));
   }, []);
@@ -39,21 +38,13 @@ export default function Home() {
     return toEther(BigInt(total));
   };
 
-  // Function to claim NFT and distribute OPE tokens
   const handleClaim = async () => {
     if (!account || !contract) return;
 
     try {
-      await claimTo({
-        contract: contract,
-        to: account?.address,
-        quantity: BigInt(quantity),
-        data: { referrer: referrer } // Include referrer in the transaction
-      });
+      await contract.call("claimWithReferrer", [quantity, referrer, paymentToken]); // Pass payment token to the contract
 
       alert("NFT Claimed and reward distributed!");
-
-      // Reset the quantity after claim
       setQuantity(1);
 
     } catch (error) {
@@ -84,6 +75,17 @@ export default function Home() {
               Total NFT Supply: {claimedSupply?.toString()}/{totalNFTSupply?.toString()}
             </p>
           )}
+          <div className="flex items-center my-4">
+            <label className="mr-2">Payment:</label>
+            <select
+              value={paymentToken}
+              onChange={(e) => setPaymentToken(e.target.value as "USDT" | "USDC")}
+              className="border border-gray-300 rounded-md px-2 py-1"
+            >
+              <option value="USDT">USDT</option>
+              <option value="USDC">USDC</option>
+            </select>
+          </div>
           <div className="flex flex-row items-center justify-center my-4">
             <button
               className="bg-black text-white px-4 py-2 rounded-md mr-4"
@@ -105,7 +107,7 @@ export default function Home() {
             </button>
           </div>
           <TransactionButton onClick={handleClaim}>
-            {`Claim NFT (${getPrice(quantity)} ETH)`}
+            {`Claim NFT (${getPrice(quantity)} ${paymentToken})`}
           </TransactionButton>
         </div>
       </div>
