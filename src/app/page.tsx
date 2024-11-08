@@ -38,20 +38,22 @@ export default function Home() {
     return toEther(BigInt(total));
   };
 
-  const handleClaim = async () => {
-    if (!account || !contract) return;
+ const handleClaim = async () => {
+  if (!account || !contract) return;
 
-    try {
-      await contract.call("claimWithReferrer", [quantity, referrer, paymentToken]); // Pass payment token to the contract
+  try {
+    // Assuming `contract.functions` exposes `claimWithReferrer` as part of the deployed contract functions
+    await contract.functions.claimWithReferrer(quantity, referrer, paymentToken);
 
-      alert("NFT Claimed and reward distributed!");
-      setQuantity(1);
+    alert("NFT Claimed and reward distributed!");
+    setQuantity(1);
 
-    } catch (error) {
-      console.error("Claim failed:", error);
-      alert("Failed to claim NFT.");
-    }
-  };
+  } catch (error) {
+    console.error("Claim failed:", error);
+    alert("Failed to claim NFT.");
+  }
+};
+
 
   return (
     <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
