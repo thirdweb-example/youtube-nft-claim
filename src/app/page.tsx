@@ -7,66 +7,69 @@ import { client } from "./client";
 import { defineChain, getContract, toEther } from "thirdweb";
 import { bsc } from "thirdweb/chains";
 import { getContractMetadata } from "thirdweb/extensions/common";
-import { getActiveClaimCondition, getTotalClaimedSupply, nextTokenIdToMint } from "thirdweb/extensions/erc721";
-import { useEffect, useState } from "react";
+import { claimTo, getActiveClaimCondition, getTotalClaimedSupply, nextTokenIdToMint } from "thirdweb/extensions/erc721";
+import { useState } from "react";
 
 export default function Home() {
   const account = useActiveAccount();
-  const chain = defineChain(bsc);
-  const [quantity, setQuantity] = useState(1);
-  const [referrer, setReferrer] = useState<string | null>(null);
-  const [paymentToken, setPaymentToken] = useState<"USDT" | "USDC">("USDT");
 
-  // Define contract
-  const contract = getContract({
+  // Replace the chain with the chain you want to connect to
+  const chain = defineChain( sepolia );
+
+  const [quantity, setQuantity] = useState(1);
+
+  // Replace the address with the address of the deployed contract
+    const contract = getContract({
     client: client,
     chain: chain,
     address: "0x28f6Ff4FeC066b2a6D995ed74567413F3649BB42"
   });
 
-  const { data: contractMetadata, isLoading: isContractMetadataLoading } = useReadContract(getContractMetadata, { contract });
-  const { data: claimedSupply, isLoading: isClaimedSupplyLoading } = useReadContract(getTotalClaimedSupply, { contract });
-  const { data: totalNFTSupply, isLoading: isTotalSupplyLoading } = useReadContract(nextTokenIdToMint, { contract });
-  const { data: claimCondition } = useReadContract(getActiveClaimCondition, { contract });
+  const { data: contractMetadata, isLoading: isContractMetadataLaoding } = useReadContract( getContractMetadata,
+    { contract: contract }
+  );
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    setReferrer(urlParams.get("ref"));
-  }, []);
+  const { data: claimedSupply, isLoading: isClaimedSupplyLoading } = useReadContract( getTotalClaimedSupply,
+    { contract: contract}
+  );
+
+  const { data: totalNFTSupply, isLoading: isTotalSupplyLoading } = useReadContract( nextTokenIdToMint,
+    { contract: contract }
+  );
+
+  const { data: claimCondition } = useReadContract( getActiveClaimCondition,
+    { contract: contract }
+  );
 
   const getPrice = (quantity: number) => {
     const total = quantity * parseInt(claimCondition?.pricePerToken.toString() || "0");
     return toEther(BigInt(total));
-  };
-
-  const handleClaim = async () => {
-    if (!account || !contract) return;
-
-    try {
-      // Call claimWithReferrer function directly using contract.call
-      await contract.call("claimWithReferrer", [quantity, referrer, paymentToken]);
-
-      alert("NFT Claimed and reward distributed!");
-      setQuantity(1);
-    } catch (error) {
-      console.error("Claim failed:", error);
-      alert("Failed to claim NFT.");
-    }
-  };
+  }
 
   return (
     <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
-      <div className="py-20 text-center">
+	    <div className="py-20 text-center">
         <Header />
-        <ConnectButton client={client} chain={chain} />
+        <ConnectButton
+          client={client}
+          chain={chain}
+        />
         <div className="flex flex-col items-center mt-4">
-          {isContractMetadataLoading ? (
+          {isContractMetadataLaoding ? (
             <p>Loading...</p>
           ) : (
             <>
-              <MediaRenderer client={client} src={contractMetadata?.image} className="rounded-xl" />
-              <h2 className="text-2xl font-semibold mt-4">{contractMetadata?.name}</h2>
-              <p className="text-lg mt-2">{contractMetadata?.description}</p>
+              <MediaRenderer
+                client={client}
+                src={contractMetadata?.image}
+                className="rounded-xl"
+              />
+              <h2 className="text-2xl font-semibold mt-4">
+                {contractMetadata?.name}
+              </h2>
+              <p className="text-lg mt-2">
+                {contractMetadata?.description}
+              </p>
             </>
           )}
           {isClaimedSupplyLoading || isTotalSupplyLoading ? (
@@ -76,24 +79,11 @@ export default function Home() {
               Total NFT Supply: {claimedSupply?.toString()}/{totalNFTSupply?.toString()}
             </p>
           )}
-          <div className="flex items-center my-4">
-            <label className="mr-2">Payment:</label>
-            <select
-              value={paymentToken}
-              onChange={(e) => setPaymentToken(e.target.value as "USDT" | "USDC")}
-              className="border border-gray-300 rounded-md px-2 py-1"
-            >
-              <option value="USDT">USDT</option>
-              <option value="USDC">USDC</option>
-            </select>
-          </div>
           <div className="flex flex-row items-center justify-center my-4">
             <button
               className="bg-black text-white px-4 py-2 rounded-md mr-4"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            >
-              -
-            </button>
+            >-</button>
             <input 
               type="number" 
               value={quantity}
@@ -103,12 +93,20 @@ export default function Home() {
             <button
               className="bg-black text-white px-4 py-2 rounded-md mr-4"
               onClick={() => setQuantity(quantity + 1)}
-            >
-              +
-            </button>
+            >+</button>
           </div>
-          <TransactionButton onClick={handleClaim}>
-            {`Claim NFT (${getPrice(quantity)} ${paymentToken})`}
+          <TransactionButton
+            transaction={() => claimTo({
+              contract: contract,
+              to: account?.address || "",
+              quantity: BigInt(quantity),
+            })}
+            onTransactionConfirmed={async () => {
+              alert("NFT Claimed!");
+              setQuantity(1);
+            }}
+          >
+            {`Claim NFT (${getPrice(quantity)} USDT)`}
           </TransactionButton>
         </div>
       </div>
@@ -123,8 +121,11 @@ function Header() {
         src={thirdwebIcon}
         alt=""
         className="size-[150px] md:size-[150px]"
-        style={{ filter: "drop-shadow(0px 0px 24px #a726a9a8)" }}
+        style={{
+          filter: "drop-shadow(0px 0px 24px #a726a9a8)",
+        }}
       />
+
       <h1 className="text-2xl md:text-6xl font-semibold md:font-bold tracking-tighter mb-6 text-zinc-100">
         NFT Claim App
       </h1>
