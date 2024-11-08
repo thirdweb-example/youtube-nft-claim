@@ -95,19 +95,20 @@ export default function Home() {
               onClick={() => setQuantity(quantity + 1)}
             >+</button>
           </div>
-          <TransactionButton
-            transaction={() => claimTo({
-              contract: contract,
-              to: account?.address || "",
-              quantity: BigInt(quantity),
-            })}
-            onTransactionConfirmed={async () => {
-              alert("NFT Claimed!");
-              setQuantity(1);
-            }}
-          >
-            {`Claim NFT (${getPrice(quantity)} USDT)`}
-          </TransactionButton>
+         <TransactionButton
+  transaction={() => claimTo({
+    contract: contract,
+    to: account?.address || "",
+    quantity: BigInt(quantity),
+  })}
+  onTransactionConfirmed={async () => {
+    alert("NFT Claimed!");
+    setQuantity(1);
+  }}
+>
+  {`Claim NFT (${getPrice(quantity)} USDT)`}
+</TransactionButton>
+
         </div>
       </div>
     </main>
