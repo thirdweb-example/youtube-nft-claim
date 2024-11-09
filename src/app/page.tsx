@@ -9,40 +9,13 @@ import { bsc } from "thirdweb/chains";
 import { getContractMetadata } from "thirdweb/extensions/common";
 import { claimTo, getActiveClaimCondition, getTotalClaimedSupply, nextTokenIdToMint } from "thirdweb/extensions/erc721";
 import { useEffect, useState } from "react";
-import { createThirdwebClient, inAppWallet, createWallet } from "thirdweb/wallets";
-
-// Configure Thirdweb client and wallets
-const client = createThirdwebClient({
-  clientId: "....",
-});
-
-const wallets = [
-  inAppWallet({
-    auth: {
-      options: [
-        "google",
-        "discord",
-        "telegram",
-        "farcaster",
-        "email",
-        "x",
-        "passkey",
-        "phone",
-      ],
-    },
-  }),
-  createWallet("io.metamask"),
-  createWallet("com.coinbase.wallet"),
-  createWallet("me.rainbow"),
-  createWallet("io.rabby"),
-  createWallet("io.zerion.wallet"),
-];
 
 export default function CommunityNFTPage() {
   const account = useActiveAccount();
   const [quantity, setQuantity] = useState(1);
-  const [referrerId, setReferrerId] = useState("000");  // Default to "000" if no referrer
+  const [referrerId, setReferrerId] = useState(null);
 
+  // Define chain and contract details
   const chain = defineChain(bsc);
   const contract = getContract({
     client: client,
@@ -50,17 +23,21 @@ export default function CommunityNFTPage() {
     address: "0x28f6Ff4FeC066b2a6D995ed74567413F3649BB42"
   });
 
-  // Fetch contract metadata and claim conditions
+  // Fetch contract metadata and conditions
   const { data: contractMetadata } = useReadContract(getContractMetadata, { contract: contract });
   const { data: claimedSupply } = useReadContract(getTotalClaimedSupply, { contract: contract });
   const { data: totalNFTSupply } = useReadContract(nextTokenIdToMint, { contract: contract });
   const { data: claimCondition } = useReadContract(getActiveClaimCondition, { contract: contract });
 
   useEffect(() => {
+    // Extract referrerId from URL query parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const referrer = urlParams.get("clientId") || "000";
-    setReferrerId(referrer);
-    console.log("Referrer ID:", referrer);
+    const referrer = urlParams.get("clientId");
+    if (referrer) {
+      setReferrerId(referrer);
+      // Call backend to validate or log the referrer if needed
+      console.log("Referrer ID:", referrer);
+    }
   }, []);
 
   const getPrice = (quantity) => {
@@ -72,28 +49,7 @@ export default function CommunityNFTPage() {
     <main className="p-4 pb-10 min-h-[100vh] flex flex-col items-center container max-w-screen-lg mx-auto">
       <header className="flex justify-between w-full py-4">
         <h1 className="text-2xl md:text-6xl font-semibold text-zinc-100">Community NFT</h1>
-        <ConnectButton
-          client={client}
-          wallets={wallets}
-          connectModal={{
-            size: "compact",
-            showThirdwebBranding: false,
-          }}
-          auth={{
-            async doLogin(params) {
-              // backend verification logic
-            },
-            async doLogout() {
-              // backend logout logic
-            },
-            async getLoginPayload(params) {
-              // return payload from backend
-            },
-            async isLoggedIn() {
-              // check login status from backend
-            },
-          }}
-        />
+        <ConnectButton client={client} chain={chain} />
       </header>
 
       <div className="py-10 text-center">
