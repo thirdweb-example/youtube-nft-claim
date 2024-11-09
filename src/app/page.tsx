@@ -3,12 +3,12 @@
 import Image from "next/image";
 import { ConnectButton, MediaRenderer, TransactionButton, useActiveAccount, useReadContract } from "thirdweb/react";
 import logoWhite from "@public/logo-white.png";
-import { client } from "./client";
 import { defineChain, getContract, toEther } from "thirdweb";
 import { bsc } from "thirdweb/chains";
 import { getContractMetadata } from "thirdweb/extensions/common";
 import { claimTo, getActiveClaimCondition, getTotalClaimedSupply, nextTokenIdToMint } from "thirdweb/extensions/erc721";
 import { useEffect, useState } from "react";
+import { client } from "./client"; // 确保client只定义一次
 
 export default function CommunityNFTPage() {
   const account = useActiveAccount();
